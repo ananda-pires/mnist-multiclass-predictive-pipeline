@@ -13,8 +13,8 @@ The project covers the complete workflow from data exploration and preprocessing
 Three predictive models were developed and compared:
 
 * K-Nearest Neighbors (KNN)
-* Scikit-learn Multilayer Perceptron (MLP)
-* TensorFlow/Keras Multilayer Perceptron (MLP)
+* Scikit-learn Multilayer Perceptron (Scikit-learn MLP)
+* TensorFlow/Keras Multilayer Perceptron (TensorFlow/Keras MLP)
 
 The Scikit-learn MLP achieved the strongest performance on the independent MNIST test set and was therefore selected for the robustness experiments.
 
@@ -44,6 +44,9 @@ MNIST contains:
 
 The dataset is reasonably balanced across the ten classes.
 
+The class distribution was examined to verify that the ten digit classes were reasonably balanced.
+![MNIST class distribution](figures/class_distribution.png)
+
 The data was divided using stratified sampling into:
 
 * 70% training
@@ -71,6 +74,8 @@ The project was developed using:
 * Git and GitHub
 
 The project was developed and tested on macOS using an Apple Silicon Mac.
+
+The 'requirements.txt' file contains the Python package versions used in the development environment. It can be used to install the project dependencies and recreate the environment required to run the pipeline.
 
 ## Project Workflow
 
@@ -135,6 +140,12 @@ Validation accuracy: approximately 92.44%.
 
 The final models were evaluated on the independent test set.
 
+The overall test-set performance of the three models is compared below.
+![Model performance comparison](figures/model_performance_comparison.png)
+
+Training time is also compared with test-set accuracy to illustrate the computational trade-off between the models.
+![Test accuracy versus training time](figures/test_accuracy_vs_training_time.png)
+
 The main results were:
 
 | Model                |   Accuracy | Weighted Precision | Weighted Recall | Weighted F1 |
@@ -146,6 +157,9 @@ The main results were:
 Confusion matrices were generated for all three models to identify the most difficult classes and the most frequent classification errors.
 
 The Scikit-learn MLP achieved the highest test-set accuracy and also provided fast inference. It was therefore selected for the robustness experiments in Phase 5.
+
+The confusion matrix below shows the predictions of the best-performing model on the independent test set.
+![Scikit-learn MLP confusion matrix](figures/confusion_matrix_scikit_learn_mlp.png)
 
 ### Phase 5 — Robustness Experiments
 
@@ -167,6 +181,9 @@ The restricted model was then tested exclusively on the previously hidden classe
 
 Because these classes were absent from training, the model could not predict them as outputs. Instead, every image had to be assigned to one of the known classes.
 
+The confusion matrix below shows how the restricted model assigned the unseen digits to the classes that were available during training. 
+![Restricted MLP predictions for unseen classes](figures/hidden_classes_confusion_matrix.png)
+
 The results showed that the model frequently assigned unseen digits to classes such as 7 and 8 and could produce high prediction confidence despite the true classes never having been observed during training.
 
 This demonstrates a limitation of closed-set classifiers: a high confidence score does not necessarily mean that the input belongs to a class that was actually present during training.
@@ -186,6 +203,9 @@ The preprocessing pipeline included:
 
 The selected Scikit-learn MLP correctly classified 3 out of 10 images, resulting in an accuracy of 30%.
 
+The probability distributions below show the model's predictions for the ten external handwritten images.
+![Prediction probabilities for own handwritten images](figures/own_images_probabilities.png)
+
 The substantial performance decrease demonstrates the effect of distribution differences between MNIST and independently created handwritten images.
 
 Factors such as handwriting style, stroke thickness, positioning, scale, contrast, and image acquisition can affect model performance.
@@ -199,12 +219,23 @@ mnist-multiclass-predictive-pipeline/
 │   ├── own_images/
 │   └── own_images_processed/
 │
+├── figures/
+│   ├── class_distribution.png
+│   ├── confusion_matrix_knn.png
+│   ├── confusion_matrix_scikit_learn_mlp.png
+│   ├── confusion_matrix_tensorflow_keras_mlp.png
+│   ├── hidden_classes_confusion_matrix.png
+│   ├── model_performance_comparison.png
+│   ├── own_images_confusion_matrix.png
+│   ├── own_images_probabilities.png
+│   └── test_accuracy_vs_training_time.png
+│
 ├── notebooks/
 │   └── mnist_pipeline.ipynb
 │
+├── .gitignore
 ├── README.md
-├── requirements.txt
-└── .gitignore
+└── requirements.txt
 ```
 
 ## How to Run
@@ -261,28 +292,27 @@ data/own_images_processed/
 
 ## Reproducibility
 
-The train/validation/test split uses a fixed random state of 42 and stratified sampling.
+The train/validation/test split uses a fixed random state of 42 and stratified sampling, ensuring that the dataset split can be reproduced consistently.
 
-This ensures that the dataset split can be reproduced consistently.
+A fixed random seed of 42 is also used during model training to improve the reproducibility of the experiments.
 
 Model training and inference times may vary depending on the computer, operating system, hardware, and current system load.
 
 ## Limitations
 
-This project demonstrates several important limitations of the developed classification pipeline.
+The robustness experiments highlight important limitations of the classification pipeline.
 
-First, the robustness experiments use relatively small evaluation sets compared with the original MNIST dataset.
+In Challenge B, the model was trained without digits 4 and 9 but was forced to classify them as one of the known classes. It often made highly confident incorrect predictions, particularly for classes such as 7 and 8. This illustrates the closed-set limitation of standard classifiers: their probability outputs can remain high even when the input belongs to an unseen class.
 
-Second, the Challenge B experiment demonstrates closed-set behavior with unseen classes but is not a complete out-of-distribution detection benchmark.
+Challenge C showed a clear difference between benchmark and external performance. Although the best model achieved approximately 98% accuracy on MNIST, it correctly classified only 3 of 10 external handwritten images. Differences in handwriting style, stroke shape, scale, positioning, and image characteristics introduced distribution shift.
 
-Third, the ten handwritten images in Challenge C are not sufficient to estimate general real-world recognition performance statistically.
-
-Finally, the three evaluated models do not cover all possible approaches to handwritten digit classification.
+The small number of external images limits statistical conclusions, and additional models, data augmentation, calibration, and explicit out-of-distribution detection could be explored to improve robustness.
 
 ## Possible Improvements
 
 Several improvements could be explored in future versions of the project:
 
+* Organize the project into a src module with reusable functions for data preparation, preprocessing, model training, evaluation, and inference.
 * Use convolutional neural networks (CNNs) for image classification.
 * Apply data augmentation to improve robustness to handwriting variations.
 * Evaluate the models on a larger collection of independently created handwritten images.
