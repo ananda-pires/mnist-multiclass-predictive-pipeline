@@ -333,6 +333,12 @@ However, the robustness experiments revealed two important limitations. When cla
 
 These results highlight the importance of evaluating machine learning systems not only under standard benchmark conditions but also under scenarios that more closely resemble unexpected or real-world inputs.
 
+## Project Demonstration Video
+
+The video below presents the project and demonstrates the execution of the MNIST predictive pipeline. It also explains the main project decisions, model evaluation, robustness challenges, and the development workflow.
+
+[Watch the project demonstration video](https://drive.google.com/drive/folders/1QEcy8xyEaYom1ZpjrAqpQY8N71KWjKjQ?usp=sharing)
+
 ## Author
 
 **Ananda Christina Staats Pires**
